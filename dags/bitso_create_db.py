@@ -1,7 +1,7 @@
 """
 ## Bitso ETL Dag
 
-This DAG creates a table in a postgres database
+This DAG creates the initial database on postgres
 
 """
 import os
@@ -27,8 +27,8 @@ path_cwd = os.getcwd()
     schedule="@daily",
     catchup=False,
     doc_md=__doc__,
-    default_args={"owner": "Astro", "retries": 3},
-    tags=["example"],
+    default_args={"owner": "jd_bolanos", "retries": 3},
+    tags=["Bitso"],
 )
 def bitso_create_db_dag():
     # Define tasks
