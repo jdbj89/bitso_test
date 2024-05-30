@@ -6,8 +6,7 @@ INSERT INTO movement_stats (
   num_dp,
   total_amount_dp,
 	num_wd, 
-	total_amount_wd, 
-  status
+	total_amount_wd 
 )
 
 WITH deposits as (
@@ -34,18 +33,14 @@ withdrawals as (
 	GROUP BY 1,2,3
 )
 
-SELECT u.user_id, '{{ ds }}' as date,
-      c.currency,
-	   COALESCE(d.num_deposits,0) as num_dp, 
-	   COALESCE(d.total_amount,0) as total_amount_dp, 
-	   COALESCE(w.num_withdrawals,0) as num_wd, 
-	   COALESCE(w.total_amount,0) as total_amount_wd, 
-     CASE WHEN COALESCE(d.num_deposits,0)>0 OR COALESCE(w.num_withdrawals,0)>0 THEN 'ACTIVE'
-     ELSE 'INACTIVE' END AS status
-FROM users as u
-JOIN currencies as c ON 1=1
-LEFT JOIN deposits as d
-ON u.user_id = d.user_id and c.currency = d.currency
-LEFT JOIN withdrawals as w
-ON u.user_id = w.user_id and c.currency = w.currency
+SELECT COALESCE(d.user_id, w.user_id) as user_id,
+       '{{ ds }}' as date,
+       COALESCE(d.currency, w.currency) as currency,
+       COALESCE(d.num_deposits,0) as num_dp, 
+	     COALESCE(d.total_amount,0) as total_amount_dp, 
+	     COALESCE(w.num_withdrawals,0) as num_wd, 
+	     COALESCE(w.total_amount,0) as total_amount_wd
+from deposits as d
+FULL OUTER JOIN withdrawals as w
+ON d.user_id = w.user_id and d.currency = w.currency
 ;
