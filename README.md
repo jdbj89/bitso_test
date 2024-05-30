@@ -2,12 +2,7 @@
 
 > ## Table of Contents
 * [Challenge description](#challenge-description)
-    * [1. API](#1-api)
-    * [2. SQL](#2-sql)
-* [Proposed Data Architecture](#proposed-data-architecture)
-    * [DataBaseStack](#databasestack)
-    * [UploadDataStack](#uploaddatastack)
-    * [EndPointStack](#endpointstack)
+* [Proposed Solution](#proposed-solution)
 * [Run App - Step by Step](#run-app---step-by-step)
     * [1. Upload data - API](#1-upload-data---api)
     * [2. SQL requests - Endpoints](#2-sql-requests---endpoints)
@@ -29,17 +24,18 @@ Number of unique currencies withdrew on a given day
 Total amount deposited of a given currency on a given day  
 
 > ## Proposed Solution
-The propose solution for challenge starts storing the 4 csv files in a S3 bucket as is shown in Fig.1.
+The propose solution for challenge starts storing the 4 csv files in a S3 bucket as is shown in Fig.1.  
+
 ![Fig.1. S3 bucket with csv files](https://github.com/jdbj89/bitso_test/blob/main/screen_shots/input_bucket.png?raw=true)
 
-Then, a first Dag called [bitso_cerate_db.py](https://github.com/jdbj89/bitso_test/blob/main/dags/bitso_cerate_db.py) is implemented using Airflow in order to create an initial data base using a Postgres conection, which in this case is pointing to a local postgres server in my local pc. The postgres connection config in Airflow UI is shown below:
+Then, a first Dag called [bitso_cerate_db.py](https://github.com/jdbj89/bitso_test/blob/main/dags/bitso_cerate_db.py) is implemented using Airflow in order to create an initial data base using a Postgres conection, which in this case is pointing to a local postgres server in my local pc. The postgres connection config in Airflow UI is shown below:  
 
 ![Fig.2. Postgres Connection](https://github.com/jdbj89/bitso_test/blob/main/screen_shots/postgres_conn.png?raw=true)
 
 >[!NOTE]
 >In order to point to the local host of your local PC you have to use **host.docker.internal** in Host field. Also is important to mention that in this case the local postgres server use port 5433, this last because when Airflow runs take as default the port 5432 for the Postgres metadata database and if you have another server in the same port airflow does not start in your local machine and generates an error.
 
-The initial data base is composed by tables deposit, withdrawals, events and users, which are populated by reading the correnponding csv files from S3. For this last I use my owm AWS account and my credentials which must be included in the AWS connection. The AWS connection config in Airflow UI as is shown below:
+The initial data base is composed by tables deposit, withdrawals, events and users, which are populated by reading the correnponding csv files from S3. For this last I use my owm AWS account and my credentials which must be included in the AWS connection. The AWS connection config in Airflow UI as is shown below:  
 
 ![Fig.3. AWS Connection](https://github.com/jdbj89/bitso_test/blob/main/screen_shots/aws_conn.png?raw=true)
 
@@ -49,13 +45,13 @@ The first task of the dag creates the tables, the second task load the data from
 >It is important to mention that csv files could contain wrong data, for example in this case there are duplicated data in deposit file. That is why in the import task and preprocessing stage is included in order to delete duplicates data and rows with all values in NULL, this last is not our case but it was included.
 
 
-The dag graph is shown in Figure 4.
+The dag graph is shown in Figure 4.  
 
 ![Fig.4. Bitso Create DB Dag](https://github.com/jdbj89/bitso_test/blob/main/screen_shots/bitso_create_db.png?raw=true)
 
 Now, having the initial database, which is supposed as a company database created long time ago and updated daily, the next step is create an extra ETL process in order to generate new tables, which will simplify the quering process to get the requested insights. **This ETL will process data daily taking the last day data.**  
 
-The proposed ETL dag is called [bitso_etl.py](https://github.com/jdbj89/bitso_test/blob/main/dags/bitso_etl.py) and its graph is shown below:
+The proposed ETL dag is called [bitso_etl.py](https://github.com/jdbj89/bitso_test/blob/main/dags/bitso_etl.py) and its graph is shown below:  
 
 ![Fig.5. Bitso ETL Dag](https://github.com/jdbj89/bitso_test/blob/main/screen_shots/bitso_etl.png?raw=true)
 
@@ -71,4 +67,16 @@ The othe task is login_stats, which takes all the users from users table and cal
 
 Finally, the task user_status takes the info from user_balance table and calculates the **status** of each user for the corresponding date, which will be **ACTIVE** if the user made at least one deposit or one withdrawal, else, it will be **INACTIVE**.
 
+
+> ## Run Solution
+
+If you want to run this solution in your local enviroment, you just neet to clone this repo, make sure you have installed astro CLI, and then just type in your terminal 
+-astro dev start
+
+After this Airflow should start and the next info shoul appear in your terminal 
+
+Airflow Webserver: http://localhost:8080
+Postgres Database: localhost:5432/postgres
+The default Airflow UI credentials are: admin:admin
+The default Postgres DB credentials are: postgres:postgres
 
