@@ -55,7 +55,12 @@ The proposed ETL dag is called [bitso_etl.py](https://github.com/jdbj89/bitso_te
 
 ![Fig.5. Bitso ETL Dag](https://github.com/jdbj89/bitso_test/blob/main/screen_shots/bitso_etl.png?raw=true)
 
-The first task of the ETL is just an empty task or starting point of the process, then a branch task is declared which will run the task **create tables** only if it is the first dag_run, for posterior executions this task will be skipped. 
+The first task of the ETL is just an empty task or starting point of the process, then a branch task is declared which will run the task **create etl tables** only if it is the first dag_run, for posterior executions this task will be skipped. 
+
+After create etl tables task, we already have the final structure of our database. The database ERD is shown below.
+
+![Fig.6. Database ERD](https://github.com/jdbj89/bitso_test/blob/main/screen_shots/ERD.png?raw=true)
+
 
 The next task populates **movements_stats table** taking the data of previous day from deposit and withdrwals tables. Movements_stats table is like a summary of the movements where total of deposits (**num_dp**), total of withdrawals (**num_wd**), total amount of deposits (**total_amount_dp**) and total amount of withdrawals (**total_amount_wd**) are calculated by user_id, date, and currency.
 
