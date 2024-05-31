@@ -82,10 +82,12 @@ If you want to run this solution in your local enviroment, you just need to foll
 5. Type **astro dev start** in your terminal
 6. After few minutes this message should appears in your terminal, which indicates that Airflow is working and UI is running on http://localhost:8080
 
-```Airflow Webserver: http://localhost:8080  
+```
+Airflow Webserver: http://localhost:8080  
 Postgres Database: localhost:5432/postgres  
 The default Airflow UI credentials are: admin:admin  
-The default Postgres DB credentials are: postgres:postgres ```
+The default Postgres DB credentials are: postgres:postgres
+```
 
 7. Configure the Postgres and AWS connections in Airflow UI as it was shown above
 8. Activate dag bitso_create_dag and run it just one time
